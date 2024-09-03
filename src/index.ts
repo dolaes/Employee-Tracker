@@ -6,18 +6,18 @@ function app() {
         {
             type: "list",
             name: "action",
-            message: "What would you like to do?",
+            message: "What would you like to do?:",
             choices: [
                 "View All Employees",
-                "Add Employee",
-                "Update Employee Role",
-                "View All Roles",
-                "Add Role",
                 "View All Departments",
-                "Add Department",
-                "Update Employee Manager",
+                "View All Roles",
                 "View Employees By Manager",
                 "View Employees By Department",
+                "Add Employee",
+                "Add Role",
+                "Add Department",
+                "Update Employee Role",
+                "Update Employee Manager",
                 "Quit"
             ]
         }
@@ -92,23 +92,23 @@ async function addEmployee(): Promise<void> {
         {
             type: "input",
             name: "first_name",
-            message: "Enter the employee's first name"
+            message: "Enter the employee's first name:"
         },
         {
             type: "input",
             name: "last_name",
-            message: "Enter the employee's last name"
+            message: "Enter the employee's last name:"
         },
         {
             type: "list",
             name: "role_id",
-            message: "Enter the employee's role",
+            message: "Enter the employee's role:",
             choices: roles.rows
         },
         {
             type: "list",
             name: "manager_id",
-            message: "Enter the employee's manager",
+            message: "Enter the employee's manager:",
             choices: employees.rows
         }
     ]).then(({ first_name, last_name, role_id, manager_id }) => {
@@ -127,13 +127,13 @@ async function updateEmployeeRole(): Promise<void> {
         {
             type: "list",
             name: "employee_id",
-            message: "Select the employee to update",
+            message: "Select the employee to update:",
             choices: employees.rows
         },
         {
             type: "list",
             name: "role_id",
-            message: "Select the employee's new role",
+            message: "Select the employee's new role:",
             choices: roles.rows
         }
     ]).then(async ({ employee_id, role_id }) => {
@@ -149,17 +149,17 @@ async function addRole(): Promise<void> {
         {
             type: "input",
             name: "title",
-            message: "Enter the role title"
+            message: "Enter the role title:"
         },
         {
             type: "input",
             name: "salary",
-            message: "Enter the role salary"
+            message: "Enter the role salary:"
         },
         {
             type: "list",
             name: "department_id",
-            message: "Enter the department",
+            message: "Enter the department:",
             choices: departments.rows
         },
     ]).then(async ({ title, salary, department_id }) => {
@@ -174,7 +174,7 @@ async function addDepartment(): Promise<void> {
         {
             type: "input",
             name: "name",
-            message: "Enter the department name"
+            message: "Enter the department name:"
         },
     ]).then(async ({ name }) => {
         await pool.query("INSERT INTO department (name) VALUES ($1)", [name]);
@@ -190,13 +190,13 @@ async function updateEmployeeManager(): Promise<void> {
         {
             type: "list",
             name: "employee_id",
-            message: "Select the employee to update",
+            message: "Select the employee to update:",
             choices: employees.rows
         },
         {
             type: "list",
             name: "manager_id",
-            message: "Select the employee's new manager",
+            message: "Select the employee's new manager:",
             choices: employees.rows
         }
     ]).then(async ({ employee_id, manager_id }) => {
@@ -216,11 +216,10 @@ async function viewEmployeesByManager(): Promise<void> {
         {
             type: "list",
             name: "manager_id",
-            message: "Select the manager whose employees you want to view",
+            message: "Select the manager whose employees you want to view:",
             choices: employees.rows
         },
     ]).then(async ({ manager_id }) => {
-        console.log(manager_id)
         const sql = "SELECT employee.id, employee.first_name AS \"first name\", employee.last_name AS \"last name\", role.title, department.name AS department, role.salary, manager.first_name || ' ' || manager.last_name AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id WHERE employee.manager_id = $1;"
         const manager_employees = await pool.query(sql, [manager_id]);
         console.table(manager_employees.rows);
@@ -234,11 +233,10 @@ async function viewEmployeesByDepartment(): Promise<void> {
         {
             type: "list",
             name: "name",
-            message: "Select the department of the employees you want to view",
+            message: "Select the department of the employees you want to view:",
             choices: departments.rows
         },
     ]).then(async ({ name }) => {
-        console.log(name);
         const sql = "SELECT employee.id, employee.first_name AS \"first name\", employee.last_name AS \"last name\", role.title, department.name AS department, role.salary, manager.first_name || ' ' || manager.last_name AS manager FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id WHERE role.department_id = $1;"
         const department_employees = await pool.query(sql, [name]);
         console.table(department_employees.rows);
